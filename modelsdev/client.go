@@ -27,6 +27,9 @@ type Client struct {
 	cacheDir   string
 	ttl        time.Duration
 	httpClient *http.Client
+	// onRefresh is called with the client after every successful Refresh.
+	// Registered via WithOnRefresh; nil means no-op.
+	onRefresh func(*Client)
 
 	mu          sync.RWMutex
 	catalog     *Catalog
@@ -54,6 +57,13 @@ func WithHTTPClient(hc *http.Client) Option {
 // WithURL overrides the API endpoint (useful in tests or for alternate sources).
 func WithURL(url string) Option {
 	return func(c *Client) { c.url = url }
+}
+
+// WithOnRefresh registers a callback that is called with the client after every
+// successful Refresh (both explicit and from StartRefresher). Use this to push
+// catalog data into other packages without polling.
+func WithOnRefresh(fn func(*Client)) Option {
+	return func(c *Client) { c.onRefresh = fn }
 }
 
 // New returns a Client with default settings applied before any opts.
@@ -213,6 +223,10 @@ func (c *Client) Refresh(ctx context.Context) error {
 	c.catalog = &cat
 	c.lastFetched = time.Now()
 	c.mu.Unlock()
+
+	if c.onRefresh != nil {
+		c.onRefresh(c)
+	}
 	return nil
 }
 
