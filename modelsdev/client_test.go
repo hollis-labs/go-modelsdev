@@ -20,7 +20,7 @@ func minimalCatalog() map[string]modelsdev.Provider {
 		"acme": {
 			ID:   "acme",
 			Name: "Acme AI",
-			Env:  "ACME_API_KEY",
+			Env:  []string{"ACME_API_KEY"},
 			Models: map[string]modelsdev.Model{
 				"fast-1": {
 					ID:     "fast-1",

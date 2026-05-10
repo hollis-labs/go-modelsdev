@@ -2,9 +2,11 @@
 
 `go-modelsdev` is a Go library for consuming the [models.dev](https://models.dev) API. It provides a cached client that returns LLM provider and model metadata — pricing, context limits, modalities, and capabilities — for use in services that need to look up model info at runtime.
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/hollis-labs/go-modelsdev.svg)](https://pkg.go.dev/github.com/hollis-labs/go-modelsdev)
+
 ## Status
 
-Beta — the API surface is small and stable.
+Pre-1.0 (v0.x.y). The exported API surface is small and intended to remain stable, but breaking changes can still land in minor bumps before v1.0 — see [`CHANGELOG.md`](CHANGELOG.md) for each release's contract.
 
 ## Install
 
@@ -12,15 +14,9 @@ Beta — the API surface is small and stable.
 go get github.com/hollis-labs/go-modelsdev
 ```
 
-For local development with a `replace` directive, add to your `go.mod`:
-
-```
-replace github.com/hollis-labs/go-modelsdev => ../go-modelsdev
-```
-
 ## Quick Usage
 
-### Create a client and look up a model
+### Look up a single model
 
 ```go
 package main
@@ -28,6 +24,7 @@ package main
 import (
     "context"
     "fmt"
+    "log"
 
     "github.com/hollis-labs/go-modelsdev/modelsdev"
 )
@@ -36,7 +33,7 @@ func main() {
     c := modelsdev.New()
 
     if err := c.Refresh(context.Background()); err != nil {
-        panic(err)
+        log.Fatal(err)
     }
 
     m, ok := c.Get("anthropic", "claude-sonnet-4-5")
@@ -48,7 +45,7 @@ func main() {
 }
 ```
 
-### Start the background refresher
+### Run the background refresher
 
 The refresher keeps the cache fresh without blocking your application startup:
 
@@ -63,6 +60,15 @@ c.StartRefresher(ctx) // returns immediately; refreshes in background
 // if the in-memory catalog is not yet populated).
 ```
 
+Use `WithOnRefresh` to be notified when the catalog has been updated — useful for pushing data into your own registry without polling:
+
+```go
+c := modelsdev.New(modelsdev.WithOnRefresh(func(c *modelsdev.Client) {
+    log.Printf("catalog refreshed: %d models", len(c.List()))
+}))
+c.StartRefresher(ctx)
+```
+
 ### List all models across all providers
 
 ```go
@@ -70,6 +76,18 @@ for _, ref := range c.List() {
     fmt.Printf("%s/%s — context window: %d\n",
         ref.ProviderID, ref.ID, ref.Limit.ContextWindow)
 }
+```
+
+### Runnable examples
+
+See [`examples/`](examples/) — each example is its own `main` package that runs end-to-end against the live API:
+
+- [`examples/lookup`](examples/lookup) — one-shot fetch + `Get` lookup.
+- [`examples/refresher`](examples/refresher) — `StartRefresher` + `WithOnRefresh` hook, prints a catalog summary.
+
+```bash
+go run ./examples/lookup
+go run ./examples/refresher
 ```
 
 ## Cache Behavior
@@ -87,20 +105,21 @@ for _, ref := range c.List() {
 | `WithCacheTTL(d time.Duration)` | `24h` | How long a cached catalog is considered fresh |
 | `WithHTTPClient(c *http.Client)` | 30s-timeout client | Replace the HTTP client (useful for tests) |
 | `WithURL(url string)` | `https://models.dev/api.json` | Override the API endpoint |
+| `WithOnRefresh(fn func(*Client))` | nil | Callback fired after every successful refresh |
 
 ## Dependencies
 
-- `github.com/cenkalti/backoff/v5` — exponential backoff for fetch retries (3 attempts)
-- `github.com/stretchr/testify` — test assertions (test only)
+- [`github.com/cenkalti/backoff/v5`](https://github.com/cenkalti/backoff) — exponential backoff for fetch retries (3 attempts).
+- [`github.com/stretchr/testify`](https://github.com/stretchr/testify) — test assertions (test only).
 
 ## Testing
 
 ```bash
-go test ./...
+go test -race ./...
 ```
 
 Tests use `httptest.NewServer` and `t.TempDir()` — no network access or real API keys required.
 
 ## License
 
-MIT License. See `LICENSE`.
+[MIT](LICENSE) © Hollis Labs.
