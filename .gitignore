@@ -1,0 +1,31 @@
+# Go build artefacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+*.prof
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local dev / cache directories
+/.cache/
+
+# Agent / AI scratch (must not appear in this public repo)
+.agentrc/
+agentrc.yaml
+agentrc.yml
+.claude/
+CLAUDE.md
+AGENTS.md
+.lefthook.yml
+lefthook.yml
+AUDIT_RESULTS.md
