@@ -1,6 +1,6 @@
 module github.com/hollis-labs/go-modelsdev
 
-go 1.26.1
+go 1.26.6
 
 require (
 	github.com/cenkalti/backoff/v5 v5.0.3
