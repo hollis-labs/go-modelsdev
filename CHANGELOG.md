@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.0 — 2026-09-30
+
+### Added
+
+- `Client.Run(ctx)` — the refresher loop on the calling goroutine. It blocks
+  until ctx is cancelled and returns only once no refresh is in flight, so a
+  caller can wait for the refresher before closing whatever its
+  `WithOnRefresh` callback writes to. `StartRefresher` is now `go c.Run(ctx)`
+  and is otherwise unchanged.
+
+### Fixed
+
+- `Refresh` returns `ctx.Err()` when ctx is cancelled after the fetch
+  completes, instead of writing the cache and calling the `WithOnRefresh`
+  callback for a result the caller has stopped wanting.
+
 ## v0.2.0 — 2026-05-10
 
 Public-release prep. Aligns the on-the-wire schema with the live `models.dev/api.json`, adds runnable examples, and polishes the package surface for `pkg.go.dev`.

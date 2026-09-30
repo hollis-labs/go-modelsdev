@@ -182,7 +182,9 @@ func (c *Client) LastFetchedAt() time.Time {
 
 // Refresh fetches fresh data from the API and updates the on-disk cache.
 // It retries up to maxRetries times with exponential backoff.
-// If the fetch fails, the existing cache remains untouched.
+// If the fetch fails, the existing cache remains untouched. So does a fetch
+// that completes after ctx is cancelled: Refresh then returns ctx.Err()
+// without writing the cache or calling the [WithOnRefresh] callback.
 func (c *Client) Refresh(ctx context.Context) error {
 	op := func() (Catalog, error) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url, nil)
@@ -212,6 +214,11 @@ func (c *Client) Refresh(ctx context.Context) error {
 		backoff.WithMaxTries(maxRetries),
 	)
 	if err != nil {
+		return err
+	}
+	// A fetch can complete just as ctx is cancelled. The caller has stopped
+	// wanting the result by then, so neither the cache nor onRefresh sees it.
+	if err := ctx.Err(); err != nil {
 		return err
 	}
 

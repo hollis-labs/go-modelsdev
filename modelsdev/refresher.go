@@ -13,11 +13,18 @@ import (
 // rather than accumulating clock skew.
 //
 // Stops cleanly when ctx is cancelled. Safe to call from main().
+// StartRefresher gives the caller nothing to wait on; use [Client.Run] in
+// your own goroutine when shutdown must know the refresher has exited — for
+// example before closing a store that [WithOnRefresh] writes to.
 func (c *Client) StartRefresher(ctx context.Context) {
-	go c.refreshLoop(ctx)
+	go c.Run(ctx)
 }
 
-func (c *Client) refreshLoop(ctx context.Context) {
+// Run is the refresher loop [Client.StartRefresher] starts, run on the
+// calling goroutine. It blocks until ctx is cancelled and returns only once
+// no refresh is in flight, so the cache write and the [WithOnRefresh]
+// callback cannot happen after Run returns.
+func (c *Client) Run(ctx context.Context) {
 	// Determine whether an immediate refresh is needed.
 	needNow := true
 	if entry, err := loadCache(c.cacheDir); err == nil && !isStale(entry, c.ttl) {
