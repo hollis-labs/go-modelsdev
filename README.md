@@ -60,6 +60,20 @@ c.StartRefresher(ctx) // returns immediately; refreshes in background
 // if the in-memory catalog is not yet populated).
 ```
 
+`StartRefresher` gives you nothing to wait on. When shutdown must know the refresher has stopped — before closing a store your `WithOnRefresh` callback writes to, say — run the loop yourself with `Run`, which blocks until ctx is cancelled and returns only once no refresh is in flight:
+
+```go
+done := make(chan struct{})
+go func() {
+    defer close(done)
+    c.Run(ctx)
+}()
+
+// on shutdown
+cancel()
+<-done
+```
+
 Use `WithOnRefresh` to be notified when the catalog has been updated — useful for pushing data into your own registry without polling:
 
 ```go

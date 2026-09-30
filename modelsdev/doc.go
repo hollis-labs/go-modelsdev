@@ -26,6 +26,8 @@
 // [Client.StartRefresher] runs a background goroutine that fetches
 // immediately if the cache is stale, then schedules subsequent fetches
 // at lastFetchedAt + TTL. Cancel the supplied context to stop cleanly.
+// [Client.Run] is the same loop on the calling goroutine; it returns only
+// after the loop has exited, for callers that must wait for it on shutdown.
 //
 // See the examples/ directory for runnable usage.
 package modelsdev
