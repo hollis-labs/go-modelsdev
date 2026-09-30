@@ -41,5 +41,5 @@ treat that fixture as the record of what models.dev actually sends rather than
 what would be convenient.
 
 The tracked `go.work` (`use .`) is a single-module workspace and contradicts
-the portfolio convention of leaving `go.work` uncommitted. It is harmless
+the convention in these repos of leaving `go.work` uncommitted. It is harmless
 today; do not build cross-module overrides on it.
