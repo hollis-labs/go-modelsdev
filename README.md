@@ -1,5 +1,21 @@
 # go-modelsdev
 
+## Moved to substrate
+
+This standalone repository is deprecated. New development lives in the
+[`github.com/hollis-labs/substrate/llm-core`](https://github.com/hollis-labs/substrate/tree/llm-core/v0.1.0/llm-core)
+module, released as **`llm-core/v0.1.0`**.
+
+```sh
+go get github.com/hollis-labs/substrate/llm-core@v0.1.0
+```
+
+Follow the [package and API migration guide](https://github.com/hollis-labs/substrate/blob/llm-core/v0.1.0/llm-core/modelsdev/MIGRATION.md) when updating imports;
+the consolidation can include API changes. Existing standalone tags and history
+are preserved. The documentation below describes the standalone releases and
+is retained for historical reference. Applications migrate separately; this
+redirect does not deploy or update any consumer.
+
 `go-modelsdev` is a Go library for consuming the [models.dev](https://models.dev) API. It provides a cached client that returns LLM provider and model metadata — pricing, context limits, modalities, and capabilities — for use in services that need to look up model info at runtime.
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/hollis-labs/go-modelsdev.svg)](https://pkg.go.dev/github.com/hollis-labs/go-modelsdev)
