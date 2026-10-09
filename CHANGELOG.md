@@ -1,5 +1,12 @@
 # Changelog
 
+## Repository retirement — 2026-10-09
+
+- Deprecated this standalone repository in favor of `github.com/hollis-labs/substrate/llm-core@v0.1.0`
+  ([migration guide](https://github.com/hollis-labs/substrate/blob/llm-core/v0.1.0/llm-core/modelsdev/MIGRATION.md)).
+- Preserved existing release tags and history. This documentation change does
+  not create a new standalone release or migrate applications.
+
 ## v0.3.0 — 2026-09-30
 
 ### Added
